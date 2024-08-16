@@ -1,4 +1,6 @@
 /* This file is in the public domain. */
+// 1 - PREVIOUS ITERATION
+// 2 - CURRENT ITERATION
 
 package slammer.analysis;
 
@@ -14,18 +16,18 @@ public class Decoupled extends DeCoupledCommon
 	public double Decoupled(double[] ain_p, double uwgt_p, double height_p, double vs_p, double damp1_p, double refstrain_p, double dt_p, double scal_p, double g_p, double vr_p, double[][] ca, boolean dv3_p)
 	{
 		// assign all passed parameters to the local data
-		uwgt = uwgt_p;
-		height = height_p;
-		vs = vs_p;
-		vs1 = vs;
-		damp1 = damp1_p;
-		damp = damp1;
-		dt = dt_p;
-		scal = scal_p;
-		g = g_p;
-		vr = vr_p;
-		dv3 = dv3_p;
-		ain = ain_p;
+		uwgt = uwgt_p; // UNIT WEIGHT? (MAYBE SPECIFIC WEIGHT)
+		height = height_p; // HEIGHT OF SLOPE
+		vs = vs_p; // SHEAR WAVE VELOCITY ABOVE SURFACE (IN SLIDING MASS)
+		vs1 = vs; // COPY OF vs INTO 'PREVIOUS' ITERATION
+		damp1 = damp1_p; // DAMPING RATIO
+		damp = damp1; // COPY OF damp1
+		dt = dt_p; // DT
+		scal = scal_p; // SCALE FACTOR?
+		g = g_p; 
+		vr = vr_p; // SHEAR WAVE VELOCITY BELOW SURFACE (IN BASE)
+		dv3 = dv3_p; // EQUIVALENT LINEAR (IF TRUE) OR LINEAR ELASTIC (IF FALSE)
+		ain = ain_p; // GROUND MOTION ACCELERATION VALUES
 
 		if ((g < 33.0) && (g > 32.0))
 			uwgt = 120.0;
@@ -36,6 +38,7 @@ public class Decoupled extends DeCoupledCommon
 		setValueSize(dt);
 
 		// copy ca into disp and mu
+		// mu AND disp RELATED TO CRITICAL ACCELERATION. LENGTH > 1 IF CRITICAL ACCELERATION VARIES WITH DISPLACEMENT
 		disp = new double[ca.length];
 		mu = new double[ca.length];
 		for(int i = 0; i < ca.length; i++)
@@ -44,9 +47,9 @@ public class Decoupled extends DeCoupledCommon
 			mu[i] = ca[i][1];
 		}
 
-		nmu = ca.length;
+		nmu = ca.length; // LENGTH OF mu TABLE
 
-		npts = ain.length;
+		npts = ain.length; // NUMBER OF POINTS IN GROUND MOTION
 
 		avgacc = new double[npts];
 		s = new double[npts];
@@ -56,6 +59,7 @@ public class Decoupled extends DeCoupledCommon
 		udotdot = new double[npts];
 
 		deltacc = 0.0;
+		// u1, udot, udotdot1 GROUND DISP, VELOCITY, ACCELERATION RESPECTIVELY
 		u1 = 0.0;
 		udot1 = 0.0;
 		udotdot1 = 0.0;
@@ -69,7 +73,7 @@ public class Decoupled extends DeCoupledCommon
 		n = 100.0;
 		o = 100.0;
 
-		rho = uwgt / g;
+		rho = uwgt / g; // DENSITY
 
 		dampf = 55.016 * Math.pow((vr / vs), -0.9904) / 100.0;
 		if(dampf > 0.2)
@@ -86,6 +90,7 @@ public class Decoupled extends DeCoupledCommon
 		qq = 1;
 
 		omega = Math.PI * vs / (2.0 * height);
+		// L AND M CONSTANTS FROM RATHJE 1999?
 		L = -2.0 * rho * height / Math.PI * Math.cos(Math.PI);
 		M = rho * height / 2.0;
 
